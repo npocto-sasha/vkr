@@ -20,7 +20,6 @@ function App() {
   const [user, setUser] = useState();
 
   function onAuth(_user) {
-    console.log("sad");
     setUser(_user);
   }
 
@@ -67,28 +66,22 @@ function App() {
           name="Dashboard"
           component={Dashboard}
           options={{
-            gesturesEnabled: false,
+            headerShown: false,
           }}
         />
-        <Stack.Screen
-          name="User"
-          component={User}
-          options={{
-            gesturesEnabled: false,
-          }}
-        />
+        <Stack.Screen name="User" component={User} options={{}} />
         <Stack.Screen
           name="Notification"
           component={Notifi}
           options={{
-            gesturesEnabled: false,
+            headerShown: false,
           }}
         />
         <Stack.Screen
           name="Monitor"
           component={Monitor}
           options={{
-            gesturesEnabled: false,
+            headerShown: false,
           }}
         />
       </Stack.Navigator>

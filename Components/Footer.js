@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
 import { View, TouchableOpacity, Text, Image, StyleSheet } from "react-native";
-import Dashboard from "../Screens/Dashboard";
+
 export default function Footer() {
   const navigation = useNavigation();
   return (
