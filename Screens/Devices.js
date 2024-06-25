@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,70 +9,88 @@ import {
   Dimensions,
   Modal,
   TextInput,
+  Alert,
 } from "react-native";
-
+import { getToken } from "../Components/ResHandler";
+import { DeviceService } from "../Components/ResHandler";
 import Button from "../Components/Button";
 import Footer from "../Components/Footer";
 import { useNavigation } from "@react-navigation/native";
-
+// KjsOLA9<>
 export default function Devices() {
   const [delModalVisible, setDelModalVisible] = useState(false);
   const [addModalVisible, setAddModalVisible] = useState(false);
+  const [devices, setDevices] = useState();
+
+  async function getDev() {
+    await getToken();
+    const dev = await DeviceService.getMyDevices();
+    var temp = dev;
+    temp.push({
+      name: "Добавить устройство",
+      id: null,
+    });
+    setDevices(temp);
+    console.log(temp);
+  }
+
+  async function delDev(id) {
+    await getToken();
+    const dev = await DeviceService.delete(id);
+    console.log(dev);
+    await getDev();
+  }
+  async function addDev() {
+    if (name && id && key) {
+      const dev = await DeviceService.activate({
+        name: name,
+        number: id,
+        activationKey: key,
+      });
+      if (dev) {
+        Alert.alert("Успех");
+        var temp = devices;
+        temp.push(dev);
+        setDevices(temp);
+      }
+    }
+  }
+  useLayoutEffect(() => {
+    getDev();
+  }, []);
 
   var name = "";
   var id = "";
   var key = "";
 
-  function changeName(text) {
-    name = text;
-  }
   function changeId(text) {
     id = text;
+  }
+  function changeName(text) {
+    name = text;
   }
   function changeKey(text) {
     key = text;
   }
-  let devices = [
-    {
-      name: "das",
-      device_id: 1,
-    },
-    {
-      name: "da",
-      device_id: 2,
-    },
-    {
-      name: "d",
-      device_id: 3,
-    },
-    {
-      name: "g",
-      device_id: 4,
-    },
-    {
-      name: "Добавить устройство",
-      device_id: null,
-    },
-  ];
-
   const [curDeviceName, setCurDeviceName] = useState("");
   const [curDeviceId, setCurDeviceId] = useState(1);
 
   const navigation = useNavigation();
+  const keyExtractor = (item) => item.id;
   const ListItem = ({ data }) => {
     return (
       <View>
-        {data.device_id ? (
+        {data.id ? (
           <View style={styles.item}>
             <Text style={styles.itemText}>Название: {data.name}</Text>
 
-            <Text style={styles.itemText}>Номер клиента: {data.device_id}</Text>
+            <Text style={styles.itemText}>Номер клиента: {data.number}</Text>
 
             <TouchableOpacity
               style={styles.itemDeleteBtn}
               onPress={() => {
                 setDelModalVisible(!delModalVisible);
-                setCurDeviceId(data.device_id);
+                setCurDeviceId(data.number);
                 setCurDeviceName(data.name);
               }}
             >
@@ -86,7 +104,7 @@ export default function Devices() {
               setAddModalVisible(!addModalVisible);
             }}
           >
-            <Text style={styles.itemText}>Добавить устройство</Text>
+            <Text style={styles.itemText}>Активировать устройство</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -103,7 +121,30 @@ export default function Devices() {
             textStyle={styles.text}
             text={"Удалить"}
             styl={styles.modalbtn}
-            tuk={() => setDelModalVisible(!delModalVisible)}
+            tuk={() => {
+              setDelModalVisible(!delModalVisible);
+              delDev(data.id);
+            }}
+          />
+          <Button
+            tuk={() => {
+              setDelModalVisible(!delModalVisible);
+            }}
+            text={"Закрыть"}
+            textStyle={[
+              styles.text,
+              {
+                color: "black",
+                fontWeight: "light",
+                fontSize: 14,
+                marginHorizontal: "auto",
+              },
+            ]}
+            styl={{
+              width: 115,
+              height: 45,
+              marginLeft: 0,
+            }}
           />
         </View>
       </Modal>
@@ -147,11 +188,21 @@ export default function Devices() {
 
           <Button
             tuk={() => {
+              addDev();
               setAddModalVisible(!addModalVisible);
             }}
             text={"Создать"}
             styl={styles.modalbtn}
             textStyle={styles.text}
+          />
+          <Button
+            tuk={() => setAddModalVisible(!addModalVisible)}
+            text={"Закрыть"}
+            textStyle={[
+              styles.text,
+              { color: "black", fontWeight: "light", fontSize: 14 },
+            ]}
+            styl={[styles.modalbtn, { backgroundColor: "white" }]}
           />
         </View>
       </Modal>
@@ -195,6 +246,7 @@ export default function Devices() {
       <View style={styles.body}>
         <FlatList
           data={devices}
+          keyExtractor={keyExtractor}
           renderItem={({ item }) => <ListItem data={item} />}
         />
       </View>
@@ -264,7 +316,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     margin: "auto",
     width: 350,
-    height: 150,
+    height: 180,
     backgroundColor: "white",
     borderRadius: 25,
     shadowColor: "#000",

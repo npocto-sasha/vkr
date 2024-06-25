@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Text, SafeAreaView, Image, TextInput, StyleSheet } from "react-native";
 
+import { login } from "../Components/AuthHandler";
 import Button from "../Components/Button";
 
 import { useNavigation } from "@react-navigation/native";
@@ -13,8 +14,12 @@ export default function Log({ route }) {
 
   const [isTyping, setIsTyping] = useState(false);
 
-  function auth() {
-    onAuth("user");
+  async function auth() {
+    const user = await login({
+      email: mail,
+      password: pass,
+    });
+    onAuth(user);
   }
   function changeMail(text) {
     setMail(text);

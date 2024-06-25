@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Text } from "react-native";
 
+import { getUserFromStorage } from "./Components/Tokens";
+import { checkAuth } from "./Components/AuthHandler";
+
 import Auth from "./Screens/Auth";
 import User from "./Screens/User";
 import Devices from "./Screens/Devices";
@@ -23,7 +26,22 @@ function App() {
   function onAuth(_user) {
     setUser(_user);
   }
+  function logOut() {
+    setUser(null);
+  }
 
+  async function getUser() {
+    const _user = await getUserFromStorage();
+    if (_user.id) {
+      const newUser = await checkAuth();
+
+      setUser(newUser);
+    }
+  }
+
+  useEffect(() => {
+    getUser();
+  }, []);
   if (initializing) return null;
 
   if (!user) {
@@ -73,6 +91,7 @@ function App() {
         <Stack.Screen
           name="User"
           component={User}
+          initialParams={{ user, logOut }}
           options={{
             title: "Профиль",
             headerTintColor: "#115ff9",
