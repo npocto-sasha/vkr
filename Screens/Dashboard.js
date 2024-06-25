@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,23 +9,29 @@ import {
   Dimensions,
 } from "react-native";
 
+import { getToken } from "../Components/ResHandler";
+import { DeviceService } from "../Components/ResHandler";
 import Footer from "../Components/Footer";
 
 import { useNavigation } from "@react-navigation/native";
 
 export default function Dashboard() {
   const navigation = useNavigation();
-  let devices = [
-    {
-      name: "das",
-      device_id: 1,
-    },
-  ];
-
+  const [devices, setDevices] = useState();
+  async function getDev() {
+    await getToken();
+    const dev = await DeviceService.getMyDevices();
+    console.log(dev);
+    var temp = dev;
+    setDevices(temp);
+  }
+  useLayoutEffect(() => {
+    getDev();
+  }, []);
   function about(devId, name) {
     navigation.navigate("Monitor", { device_id: devId, name: name });
   }
-
+  const keyExtractor = (item) => item.id;
   const ListItem = ({ data }) => {
     return (
       <View style={styles.item}>
@@ -33,7 +39,7 @@ export default function Dashboard() {
         <TouchableOpacity
           style={styles.itemAboutBtn}
           onPress={() => {
-            about(data.device_id, data.name);
+            about(data.number, data.name);
           }}
         >
           <Text style={styles.itemAboutText}>Подробнее</Text>
@@ -75,9 +81,10 @@ export default function Dashboard() {
         </TouchableOpacity>
       </View>
       <View style={styles.body}>
-        {devices[0] ? (
+        {devices ? (
           <FlatList
             data={devices}
+            keyExtractor={keyExtractor}
             renderItem={({ item }) => <ListItem data={item} />}
           />
         ) : (

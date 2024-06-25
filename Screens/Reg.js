@@ -7,7 +7,7 @@ import {
   TextInput,
   StyleSheet,
 } from "react-native";
-
+import { register } from "../Components/AuthHandler";
 import Button from "../Components/Button";
 
 import { useNavigation } from "@react-navigation/native";
@@ -21,7 +21,14 @@ export default function Reg() {
 
   const [isTyping, setIsTyping] = useState(false);
 
-  function reg() {}
+  async function register() {
+    await register({
+      email: mail,
+      password: pass,
+      fio: name,
+    });
+    navigation.navigate("Log");
+  }
   function changeMail(text) {
     setMail(text);
   }
@@ -90,7 +97,7 @@ export default function Reg() {
 
       <Button
         tuk={() => {
-          navigation.navigate("Login");
+          register();
         }}
         text={"Зарегистрироваться"}
         styl={styles.authBtn}

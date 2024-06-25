@@ -5,7 +5,6 @@ import { useNavigation } from "@react-navigation/native";
 
 export default function Auth() {
   const navigation = useNavigation();
-  console.log("1");
   return (
     <View>
       <Image style={styles.logo} source={require("../assets/Logo.png")} />

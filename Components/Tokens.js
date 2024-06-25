@@ -1,32 +1,31 @@
-import Cookies from "js-cookie";
-import { IAuthResponse, ITokens } from "../../store/user/user.interface";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const getAccessToken = () => {
-  const accessToken = Cookies.get("accessToken");
+export async function getAccessToken() {
+  const accessToken = await AsyncStorage.getItem("accessToken");
   return accessToken || null;
-};
+}
 
-export const getRefreshToken = () => {
-  const refreshToken = Cookies.get("refreshToken");
+export async function getRefreshToken() {
+  const refreshToken = await AsyncStorage.getItem("refreshToken");
   return refreshToken || null;
-};
+}
 
-export const getUserFromStorage = () => {
-  return JSON.parse(localStorage.getItem("user") || "{}");
-};
+export async function getUserFromStorage() {
+  return JSON.parse((await AsyncStorage.getItem("user")) || "{}");
+}
 
-export const saveTokenStorage = (data) => {
-  Cookies.set("accessToken", data.accessToken);
-  Cookies.set("refreshToken", data.accessToken);
-};
+export async function saveTokenStorage(data) {
+  AsyncStorage.setItem("accessToken", data.accessToken);
+  AsyncStorage.setItem("refreshToken", data.refreshToken);
+}
 
-export const removeFromStorage = () => {
-  Cookies.remove("accessToken");
-  Cookies.remove("refreshToken");
-  localStorage.removeItem("user");
-};
+export async function removeFromStorage() {
+  AsyncStorage.removeItem("accessToken");
+  AsyncStorage.removeItem("refreshToken");
+  AsyncStorage.removeItem("user");
+}
 
-export const saveToStorage = (data) => {
+export async function saveToStorage(data) {
   saveTokenStorage(data);
-  localStorage.setItem("user", JSON.stringify(data.user));
-};
+  await AsyncStorage.setItem("user", JSON.stringify(data.user));
+}

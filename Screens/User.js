@@ -9,13 +9,28 @@ import {
   Alert,
 } from "react-native";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import { logout } from "../Components/AuthHandler";
 import Button from "../Components/Button";
 
-export default function User() {
-  const [name, setName] = useState("Фамилия Имя Отчество");
-  const [mail, setMail] = useState("example@mail.com");
+export default function User({ route }) {
+  const [name, setName] = useState(route.params.user.fio);
+  const [mail, setMail] = useState(route.params.user.email);
   const [modalVisible, setModalVisible] = useState(false);
 
+  const logOut = route.params.logOut;
+
+  async function getData() {
+    console.log(await AsyncStorage.getItem("refreshToken"));
+  }
+  async function exit() {
+    await logout();
+    logOut();
+  }
+  useEffect(() => {
+    getData();
+  }, []);
   return (
     <View>
       <Modal
@@ -33,7 +48,7 @@ export default function User() {
             textStyle={styles.text}
             text={"Выйти"}
             styl={styles.modalbtn}
-            tuk={() => setModalVisible(!modalVisible)}
+            tuk={() => exit()}
           />
         </View>
       </Modal>

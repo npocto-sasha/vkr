@@ -1,13 +1,121 @@
 import React, { useEffect, useState } from "react";
+
 import { View, StyleSheet, Text, Switch } from "react-native";
+
+import mqtt from "mqtt";
+
 export default function Monitor({ route }) {
+  const [name, setName] = useState("Название");
+  const [id, setId] = useState(0);
+  const client = mqtt.connect("ws://95.163.228.174:9001/ws", {
+    username: "gigatech",
+    password: "gigatechthebest",
+  });
+  function publish(num) {
+    var body;
+    if (num == 1) {
+      body = JSON.stringify({
+        cooler: !vent,
+        door: door,
+        led: lamp,
+        pump: nasos,
+      });
+    } else if (num == 2) {
+      body = JSON.stringify({
+        cooler: vent,
+        door: !door,
+        led: lamp,
+        pump: nasos,
+      });
+    } else if (num == 3) {
+      body = JSON.stringify({
+        cooler: vent,
+        door: door,
+        led: !lamp,
+        pump: nasos,
+      });
+    } else if (num == 4) {
+      body = JSON.stringify({
+        cooler: vent,
+        door: door,
+        led: lamp,
+        pump: !nasos,
+      });
+    }
+
+    var topic = id + "_controls";
+
+    console.log(body);
+
+    client.publish(topic, body);
+  }
+
   useEffect(() => {
     setId(route.params.device_id);
     setName(route.params.name);
-  }, []);
+    if (!id) return;
 
-  const [name, setName] = useState("Название");
-  const [id, setId] = useState(0);
+    client.subscribe(id, {}, (err) => {
+      if (err) {
+        console.error(`Subscribe to ${id} failed:`, err);
+      } else {
+        console.log(`Subscribed to ${id}`);
+      }
+    });
+    client.subscribe(id + "_controls", {}, (err) => {
+      if (err) {
+        console.error(`Subscribe to ${id + "_controls"} failed:`, err);
+      } else {
+        console.log(`Subscribed to ${id + "_controls"}`);
+      }
+    });
+
+    client.on("connect", () => {
+      console.log("Connected to MQTT Broker!");
+    });
+    client.on("error", (err) => {
+      console.error("Connection to MQTT Broker failed:", err);
+    });
+
+    client.on("message", (topic, message) => {
+      if (topic === id) {
+        console.log(message);
+        const indications = JSON.parse(message.toString());
+        setLight(indications.light);
+        setHumidity(indications.humidity);
+        setTemp(indications.temp);
+      }
+    });
+
+    client.on("message", (topic, message) => {
+      if (topic === id + "_controls") {
+        const controls = JSON.parse(message.toString());
+        console.log(controls);
+        setLamp(controls.led);
+        setNasos(controls.pump);
+        setVent(controls.cooler);
+        setDoor(controls.door);
+      }
+    });
+    return () => {
+      client.unsubscribe(id, (err) => {
+        if (err) {
+          console.error(`Unsubscribe from ${id} failed:`, err);
+        } else {
+          console.log(`Unsubscribed from ${id}`);
+        }
+      });
+      client.unsubscribe(id + "_controls", (err) => {
+        if (err) {
+          console.error(`Unsubscribe from ${id + "_controls"} failed:`, err);
+        } else {
+          console.log(`Unsubscribed from ${id + "_controls"}`);
+        }
+      });
+
+      client.end;
+    };
+  }, [id]);
 
   const [light, setLight] = useState(0);
   const [humidity, setHumidity] = useState(0);
@@ -56,6 +164,7 @@ export default function Monitor({ route }) {
             trackColor={{ false: "#999", true: "#7AA7FF" }}
             onValueChange={() => {
               setLamp(!lamp);
+              publish(3);
             }}
           />
         </View>
@@ -68,6 +177,7 @@ export default function Monitor({ route }) {
             trackColor={{ false: "#999", true: "#7AA7FF" }}
             onValueChange={() => {
               setNasos(!nasos);
+              publish(4);
             }}
           />
         </View>
@@ -80,6 +190,7 @@ export default function Monitor({ route }) {
             trackColor={{ false: "#999", true: "#7AA7FF" }}
             onValueChange={() => {
               setVent(!vent);
+              publish(1);
             }}
           />
         </View>
@@ -92,6 +203,7 @@ export default function Monitor({ route }) {
             trackColor={{ false: "#999", true: "#7AA7FF" }}
             onValueChange={() => {
               setDoor(!door);
+              publish(2);
             }}
           />
         </View>
