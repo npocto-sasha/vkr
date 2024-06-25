@@ -9,6 +9,7 @@ import Monitor from "./Screens/Monitor";
 import Log from "./Screens/Log";
 import Reg from "./Screens/Reg";
 import Notifi from "./Screens/Notifi";
+import TestModal from "./Screens/TestModal";
 
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -69,7 +70,22 @@ function App() {
             headerShown: false,
           }}
         />
-        <Stack.Screen name="User" component={User} options={{}} />
+        <Stack.Screen
+          name="User"
+          component={User}
+          options={{
+            title: "Профиль",
+            headerTintColor: "#115ff9",
+            headerTitleStyle: {
+              fontWeight: "bold",
+              fontSize: 24,
+              marginLeft: 50,
+              color: "#115ff9",
+            },
+            headerTitleAlign: "center",
+            headerBackTitleVisible: false,
+          }}
+        />
         <Stack.Screen
           name="Notification"
           component={Notifi}
@@ -81,7 +97,16 @@ function App() {
           name="Monitor"
           component={Monitor}
           options={{
-            headerShown: false,
+            title: "",
+            headerTintColor: "#115ff9",
+          }}
+        />
+        <Stack.Screen
+          name="TestModal"
+          component={TestModal}
+          options={{
+            title: "",
+            headerTintColor: "#115ff9",
           }}
         />
       </Stack.Navigator>

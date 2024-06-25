@@ -27,7 +27,7 @@ export default function Footer() {
 
       <TouchableOpacity
         onPress={() => {
-          navigation.navigate("Notification");
+          navigation.navigate("TestModal");
         }}
         style={{ width: 180 }}
       >

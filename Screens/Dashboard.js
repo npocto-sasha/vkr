@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  Dimensions,
 } from "react-native";
 
 import Footer from "../Components/Footer";
@@ -17,31 +18,25 @@ export default function Dashboard() {
   let devices = [
     {
       name: "das",
-      device_id: 0,
-    },
-    {
-      name: "das",
       device_id: 1,
     },
-    {
-      name: "das",
-      device_id: 2,
-    },
-    {
-      name: "das",
-      device_id: 3,
-    },
-    {
-      name: "das",
-      device_id: 3,
-    },
   ];
+
+  function about(devId, name) {
+    navigation.navigate("Monitor", { device_id: devId, name: name });
+  }
+
   const ListItem = ({ data }) => {
     return (
       <View style={styles.item}>
         <Text style={styles.itemText}>Название: {data.name}</Text>
-        <TouchableOpacity style={styles.itemDeleteBtn}>
-          <Text style={styles.itemDeleteText}>Подробнее</Text>
+        <TouchableOpacity
+          style={styles.itemAboutBtn}
+          onPress={() => {
+            about(data.device_id, data.name);
+          }}
+        >
+          <Text style={styles.itemAboutText}>Подробнее</Text>
         </TouchableOpacity>
       </View>
     );
@@ -79,11 +74,18 @@ export default function Dashboard() {
           />
         </TouchableOpacity>
       </View>
-
-      <FlatList
-        data={devices}
-        renderItem={({ item }) => <ListItem data={item} />}
-      />
+      <View style={styles.body}>
+        {devices[0] ? (
+          <FlatList
+            data={devices}
+            renderItem={({ item }) => <ListItem data={item} />}
+          />
+        ) : (
+          <Text style={styles.noDevice}>
+            Похоже у вас нет {"\n"}устройств {":("}
+          </Text>
+        )}
+      </View>
       <Footer />
     </View>
   );
@@ -105,19 +107,30 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 3,
   },
-  itemDeleteBtn: {
-    width: 115,
+  itemAboutBtn: {
+    width: 155,
     height: 45,
     backgroundColor: "#F5F5F5",
     marginHorizontal: "auto",
     borderRadius: 5,
     marginVertical: 15,
   },
-  itemDeleteText: {
+  itemAboutText: {
     color: "#115FF9",
     fontSize: 24,
     fontWeight: "Light",
     textAlign: "center",
     marginVertical: 5,
+  },
+  noDevice: {
+    marginVertical: "auto",
+    color: "#115FF9",
+    fontWeight: "semibold",
+    fontSize: 24,
+    textAlign: "center",
+    paddingBottom: 80,
+  },
+  body: {
+    height: Dimensions.get("screen").height - 115 - 83,
   },
 });

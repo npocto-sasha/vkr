@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,50 +6,161 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  Dimensions,
+  Modal,
+  TextInput,
 } from "react-native";
 
+import Button from "../Components/Button";
 import Footer from "../Components/Footer";
 import { useNavigation } from "@react-navigation/native";
 
 export default function Devices() {
+  const [delModalVisible, setDelModalVisible] = useState(false);
+  const [addModalVisible, setAddModalVisible] = useState(false);
+
+  var name = "";
+  var id = "";
+  var key = "";
+
+  function changeName(text) {
+    name = text;
+  }
+  function changeId(text) {
+    id = text;
+  }
+  function changeKey(text) {
+    key = text;
+  }
   let devices = [
-    {
-      name: "das",
-      device_id: 0,
-    },
     {
       name: "das",
       device_id: 1,
     },
     {
-      name: "das",
+      name: "da",
       device_id: 2,
     },
     {
-      name: "das",
+      name: "d",
       device_id: 3,
     },
     {
-      name: "das",
-      device_id: 3,
+      name: "g",
+      device_id: 4,
+    },
+    {
+      name: "Добавить устройство",
+      device_id: null,
     },
   ];
+
+  const [curDeviceName, setCurDeviceName] = useState("");
+  const [curDeviceId, setCurDeviceId] = useState(1);
 
   const navigation = useNavigation();
   const ListItem = ({ data }) => {
     return (
-      <View style={styles.item}>
-        <Text style={styles.itemText}>Название: {data.name}</Text>
-        <Text style={styles.itemText}>Номер клиента: {data.device_id}</Text>
-        <TouchableOpacity style={styles.itemDeleteBtn}>
-          <Text style={styles.itemDeleteText}>Удалить</Text>
-        </TouchableOpacity>
+      <View>
+        {data.device_id ? (
+          <View style={styles.item}>
+            <Text style={styles.itemText}>Название: {data.name}</Text>
+
+            <Text style={styles.itemText}>Номер клиента: {data.device_id}</Text>
+
+            <TouchableOpacity
+              style={styles.itemDeleteBtn}
+              onPress={() => {
+                setDelModalVisible(!delModalVisible);
+                setCurDeviceId(data.device_id);
+                setCurDeviceName(data.name);
+              }}
+            >
+              <Text style={styles.itemDeleteText}>Удалить</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity
+            style={styles.item}
+            onPress={() => {
+              setAddModalVisible(!addModalVisible);
+            }}
+          >
+            <Text style={styles.itemText}>Добавить устройство</Text>
+          </TouchableOpacity>
+        )}
       </View>
     );
   };
+  const DelModal = () => {
+    return (
+      <Modal animationType="fade" transparent={true} visible={delModalVisible}>
+        <View style={styles.modalView}>
+          <Text style={styles.modalText}>
+            Удалить устройство "{curDeviceName}"?
+          </Text>
+          <Button
+            textStyle={styles.text}
+            text={"Удалить"}
+            styl={styles.modalbtn}
+            tuk={() => setDelModalVisible(!delModalVisible)}
+          />
+        </View>
+      </Modal>
+    );
+  };
+  const AddModal = () => {
+    return (
+      <Modal animationType="fade" transparent={true} visible={addModalVisible}>
+        <View style={styles.addModalView}>
+          <Image style={styles.logo} source={require("../assets/Logo.png")} />
 
+          <Text style={styles.title}>Активация устройства</Text>
+
+          <Text style={styles.inputTitle}>Название устройства</Text>
+
+          <TextInput
+            style={styles.Txtin}
+            onChangeText={(text) => {
+              changeName(text);
+            }}
+            placeholder="Введите название устройства"
+          />
+
+          <Text style={styles.inputTitle}>ID устройства</Text>
+          <TextInput
+            style={styles.Txtin}
+            onChangeText={(text) => {
+              changeId(text);
+            }}
+            placeholder="Введите ID"
+          />
+
+          <Text style={styles.inputTitle}>Ключ активации</Text>
+          <TextInput
+            style={styles.Txtin}
+            onChangeText={(text) => {
+              changeKey(text);
+            }}
+            placeholder="Введите ключ активации"
+          />
+
+          <Button
+            tuk={() => {
+              setAddModalVisible(!addModalVisible);
+            }}
+            text={"Создать"}
+            styl={styles.modalbtn}
+            textStyle={styles.text}
+          />
+        </View>
+      </Modal>
+    );
+  };
   return (
     <View style={{ flex: 1 }}>
+      <DelModal />
+      <AddModal />
       <View
         style={{
           marginTop: 50,
@@ -81,11 +192,12 @@ export default function Devices() {
           />
         </TouchableOpacity>
       </View>
-
-      <FlatList
-        data={devices}
-        renderItem={({ item }) => <ListItem data={item} />}
-      />
+      <View style={styles.body}>
+        <FlatList
+          data={devices}
+          renderItem={({ item }) => <ListItem data={item} />}
+        />
+      </View>
       <Footer />
     </View>
   );
@@ -106,7 +218,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: 3,
+    marginVertical: "auto",
   },
   itemDeleteBtn: {
     width: 115,
@@ -122,5 +234,104 @@ const styles = StyleSheet.create({
     fontWeight: "Light",
     textAlign: "center",
     marginVertical: 5,
+  },
+  itemAddText: {
+    color: "white",
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginVertical: "auto",
+  },
+  body: {
+    height: Dimensions.get("window").height - 115 - 33,
+  },
+  text: {
+    color: "#FFFFFF",
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginVertical: "auto",
+  },
+  button: {
+    width: 275,
+    height: 45,
+    marginTop: 202,
+    borderRadius: 5,
+    backgroundColor: "#115FF9",
+    marginLeft: 68,
+  },
+  modalView: {
+    alignItems: "center",
+    margin: "auto",
+    width: 350,
+    height: 150,
+    backgroundColor: "white",
+    borderRadius: 25,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    color: "525252",
+    fontSize: 18,
+    textAlign: "center",
+    marginTop: 20,
+  },
+  modalbtn: {
+    width: 275,
+    height: 45,
+    borderRadius: 5,
+    backgroundColor: "#115FF9",
+    marginLeft: 0,
+    marginTop: 20,
+  },
+  addModalView: {
+    alignItems: "center",
+    margin: "auto",
+    width: 350,
+    height: 590,
+    backgroundColor: "white",
+    borderRadius: 25,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  logo: {
+    marginHorizontal: "auto",
+    width: 106,
+    height: 106,
+    marginTop: 54,
+  },
+  Txtin: {
+    marginHorizontal: "auto",
+    borderRadius: 5,
+    backgroundColor: "#C2CEE4",
+    width: 275,
+    height: 40,
+    paddingLeft: 8,
+    color: "#525252",
+    fontSize: 18,
+  },
+  title: {
+    marginHorizontal: "auto",
+    marginTop: 30,
+    marginBottom: 10,
+    fontSize: 24,
+    color: "#115FF9",
+  },
+  inputTitle: {
+    marginTop: 10,
+    fontSize: 18,
+    color: "#115FF9",
   },
 });
